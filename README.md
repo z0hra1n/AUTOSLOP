@@ -16,4 +16,4 @@ Gemini writes a video prompt, Google Flow turns it into four 4-second clips with
 generating free quality videos was possible only through google flows free 50 credits daily and sice its api is not free, i am using pyautogui clicks.
 the pyautogui clicks are harcoded and may differ from device to device.
 
-beacuse this may seem repetitive and template based, i a made a second script which uses roughly the same structure, is very variable but was fully made by claude (i did not count the hackatime hours on this one).
+beacuse this may seem repetitive and template based, i made a second script which uses roughly the same structure, is very variable but was fully made by claude (i did not count the hackatime hours on this one).
