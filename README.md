@@ -1,6 +1,6 @@
 # AUTOSLOP
 
-A Python script that writes, generates, edits, and uploads short AI-generated story videos to YouTube Shorts with no manual steps in between.
+Fully free Python script that writes, generates, edits, and uploads short AI-generated story videos to YouTube Shorts with no manual steps in between.
 
 Gemini writes a video prompt, Google Flow turns it into four 4-second clips with native audio, ffmpeg and moviepy clean and merge them, and UniPost publishes the finished 16-second vertical video to a connected YouTube channel.
 
@@ -17,3 +17,5 @@ generating free quality videos was possible only through google flows free 50 cr
 the pyautogui clicks are harcoded and may differ from device to device.
 
 beacuse this may seem repetitive and template based, i made a second script which uses roughly the same structure, is very variable but was fully made by claude (i did not count the hackatime hours on this one).
+
+unipost allows max 100 api video uploads per month.
