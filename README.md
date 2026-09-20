@@ -13,4 +13,7 @@ Gemini writes a video prompt, Google Flow turns it into four 4-second clips with
 5. the video gets merged together with my audio.
 6. the video gets uploaded on youtube
 
+generating free quality videos was possible only through google flows free 50 credits daily and sice its api is not free, i am using pyautogui clicks.
+the pyautogui clicks are harcoded and may differ from device to device.
+
 Although this may seem repetitive and template based, i am gonna use one more script to mix things up a bit so my channel eventually does get monetized.
