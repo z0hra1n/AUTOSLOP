@@ -11,5 +11,6 @@ Gemini writes a video prompt, Google Flow turns it into four 4-second clips with
 3. the clips get downloaded as a zip
 4. the zip gets extracted and the watermark gets cleaned
 5. the video gets merged together with my audio.
+6. the video gets uploaded on youtube
 
 Although this may seem repetitive and template based, i am gonna use one more script to mix things up a bit so my channel eventually does get monetized.
