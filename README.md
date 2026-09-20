@@ -1,83 +1,216 @@
 # AUTOSLOP
 
-A Python script that writes, generates, edits, and uploads short AI-generated story videos to YouTube Shorts with no manual steps in between.
+This is the automation script I use to turn a simple idea into a finished AI-generated YouTube Short.
 
-Gemini writes a video prompt, Google Flow turns it into four 4-second clips with native audio, ffmpeg and moviepy clean and merge them, and UniPost publishes the finished 16-second vertical video to a connected YouTube channel.
+The basic idea is pretty simple: Gemini comes up with the video prompt, Google Flow generates the clips, and the Python script takes care of the boring parts afterwards.
+
+Right now the videos follow a fixed format: 16 seconds, 9:16 vertical, 5 choices, but only 4 actual video files.
 
 How it works
-Creative seed. Each run picks a random genre, tone, visual style, protagonist, setting, ending, and music style. It also reads history.json so it doesn't repeat recent stories.
-Prompt. Gemini writes a full Flow prompt for a 9:16, 360p micro-story made of exactly four 4-second clips. If a model fails, the script falls back to the next one in the list.
-Flow. pyautogui pastes the prompt into Google Flow, waits for generation, retries failed clips, renames them clip1 to clip4, and downloads the zip.
-Cleanup. ffmpeg removes the watermark with a delogo filter and keeps each clip's audio.
-Merge. moviepy joins the four clips in order into one video.
-Upload. The video goes to the UniPost API and is published as a public YouTube Short, with the AI-generated content flag set.
-Log. The final status is written to upload_log.txt and the title is added to history.json.
+
+Gemini
+  ↓
+video prompt
+  ↓
+Google Flow
+  ↓
+4 clips
+  ↓
+download + extract
+  ↓
+FFmpeg cleanup
+  ↓
+merge clips + add music
+  ↓
+final video
+  ↓
+YouTube upload
+
+The 4 clips
+
+The five choices are packed into four clips like this:
+
+0:00 - 0:04   Hook
+0:04 - 0:06   Option 1
+0:06 - 0:08   Option 2
+0:08 - 0:12   Option 3
+0:12 - 0:14   Option 4
+0:14 - 0:16   Option 5
+
+So:
+
+clip1 = hook
+
+clip2 = option 1 + option 2
+
+clip3 = option 3
+
+clip4 = option 4 + option 5
+
+The clips are renamed in Flow before they are downloaded so the script doesn't have to guess which one came first.
+
+What the script does
+
+1. Generates the prompt
+
+Gemini is used to write the actual production prompt for the video.
+
+The prompt contains all the rules for the video, including the timeline, clip count, aspect ratio, visual style, text, and the five choices.
+
+The script also tries several Gemini models if one of them fails.
+
+2. Controls Google Flow
+
+There isn't a Flow API being used here. Instead, the script controls the browser using pyautogui, keyboard, and the clipboard.
+
+It opens Flow, pastes the generated prompt, starts generation, waits for the result, retries failed generations, and tells Flow to rename the clips.
+
+Because this is screen automation, the browser needs to be in roughly the same position/layout the script expects.
+
+3. Finds the downloaded ZIP
+
+Flow downloads the generated clips as a ZIP.
+
+The script looks in the Downloads folder and picks the newest ZIP, then extracts it into a folder named after the generated video title.
+
+4. Cleans the clips
+
+FFmpeg is used through imageio-ffmpeg.
+
+At the moment, this includes removing the small watermark from the generated clips.
+
+The cleaned clips are placed in:
+
+<video title>/
+└── cleaned/
+    ├── clip1.mp4
+    ├── clip2.mp4
+    ├── clip3.mp4
+    └── clip4.mp4
+
+5. Puts everything together
+
+The script finds clip1 through clip4, loads them in that order, and concatenates them with MoviePy.
+
+It then loads audio.mp3, trims it to the length of the video, and adds it to the final result.
+
+The finished video ends up here:
+
+<video title>/
+└── cleaned/
+    └── final/
+        └── <video title>.mp4
+
+6. Uploads the video
+
+The final MP4 can then be uploaded through UniPost.
+
+The current setup publishes it as a YouTube Short with a title, description, tags, and the synthetic-media setting enabled.
+
 Requirements
-Windows, with a screen that matches the click coordinates in the script
-Python 3.11
-A Gemini API key
-Access to Google Flow, signed in and open in the browser
-A UniPost account with your YouTube channel connected
 
-Install the packages:
+You'll need:
 
-pip install google-genai pyautogui pyperclip keyboard imageio-ffmpeg moviepy requests
+Python 3.10+
 
-The script uses the moviepy 2.x imports, so make sure moviepy is version 2 or newer.
+Google Gemini API access
 
-Setup
+Google Flow access
 
-API keys. Set them as environment variables so they never appear in the code, then restart your terminal or editor:
+A browser that can run Flow
 
-setx GEMINI_API_KEY "your Gemini key"
-setx UNIPOST_API_KEY "your UniPost key"
+Windows (the current automation is written around Windows)
 
-YouTube account ID. List your connected accounts and copy the id of the YouTube one into yt_account_id in the script:
+audio.mp3 in the same folder as the script
 
-curl -H "Authorization: Bearer your UniPost key" https://api.unipost.dev/v1/accounts
+Install the Python dependencies with:
 
-Click coordinates. The Flow automation clicks fixed screen positions. To find yours, run this, hover over a button, and read the printed position:
+pip install google-genai pyautogui pyperclip keyboard imageio-ffmpeg requests moviepy
 
-python
-import pyautogui, time
-time.sleep(5)
-print(pyautogui.position())
+API key
 
-Replace the values in the pyautogui.click(...) calls near the middle of the script. Keep the browser maximized, at the same zoom level and screen resolution every run.
+Gemini reads the API key from an environment variable:
 
-Usage
+GEMINI_API_KEY
 
-Open Flow in your browser, then run:
+For PowerShell:
 
-python story_script.py
+$env:GEMINI_API_KEY="your-api-key"
 
-A full run takes roughly 10 to 15 minutes, most of it fixed waits while Flow generates the clips. Don't touch the mouse or keyboard while it runs. To stop it, move the mouse to the top-left corner of the screen.
+If you are putting this project on GitHub, don't put the actual key in the code.
 
-To run it on a schedule, create a task in Windows Task Scheduler. The PC has to be on, unlocked, and showing Flow when the task fires.
+The same goes for the UniPost credentials and YouTube account ID.
 
-Files
-File	What it is
-story_script.py	The whole pipeline
-history.json	Titles of recent stories, created on the first run
-upload_log.txt	One line per run with the time, title, and final status
-<title>.txt	The full Gemini response for each run
-<title> <date>/	Extracted clips, cleaned clips, and the final merged video
-Customizing
-Story variety. Edit the pools dictionary to change the genres, styles, protagonists, settings, endings, and music the seed picks from.
-Prompt. The story_prompt string holds the full instructions Gemini uses to write the Flow prompt.
-Models. The models list is the fallback order for Gemini.
-Watermark. The delogo box is set in the ffmpeg command. Adjust x, y, w, and h if your clips are a different size.
-Description. The description template and the tags are built near the end of the script.
-Limitations
-The Flow steps depend on screen coordinates and fixed waits, so a change to the Flow interface, your screen, or generation time can break a run.
-Each clip's audio is generated separately, so you may hear small changes at the 4-second joins.
-Independent clips can't guarantee the same character, so the prompt uses non-human protagonists or characters seen from behind.
-UniPost's free plan allows 100 posts per month. Its docs also note that Google can force uploads from an unverified API project to private, so check the first upload's visibility in YouTube Studio.
-The script exits without posting if the title can't be read, no new zip is downloaded, clips 1 to 4 aren't all present, or ffmpeg or the upload fails.
-Content notes
+Running it
 
-Every video is AI-generated. The description says so, and the upload sets YouTube's synthetic media flag. Follow YouTube's policies on AI-generated content and monetization, and check Google Flow's terms before running this unattended.
+Once everything is set up:
 
-Security
+python main.py
 
-Never commit API keys. Keep history.json, upload_log.txt, the saved prompt files, and the run folders out of the repository with a .gitignore.
+Then the automation takes over.
+
+The exact amount of time it takes depends mostly on how long Flow takes to generate the clips.
+
+A couple of things to know
+
+Flow automation is fragile
+
+The Flow part uses screen coordinates rather than an API.
+
+That means changing things like:
+
+screen resolution
+
+Windows display scaling
+
+browser zoom
+
+browser window position
+
+Flow's UI
+
+can break the automation.
+
+If a click suddenly lands somewhere completely wrong, this is probably why.
+
+Clip names matter
+
+The editing stage looks for:
+
+clip1
+clip2
+clip3
+clip4
+
+So if Flow doesn't rename them correctly, the script won't know the intended order.
+
+Watermark coordinates are fixed
+
+The FFmpeg delogo filter currently uses fixed coordinates.
+
+If the generated video resolution or watermark position changes, those coordinates will need to be changed too.
+
+Project structure
+
+A normal run looks roughly like this:
+
+project/
+├── main.py
+├── audio.mp3
+├── README.md
+│
+└── <generated title>/
+    ├── ...
+    └── cleaned/
+        └── final/
+            └── <generated title>.mp4
+
+Why I made it this way
+
+The annoying part of making these videos isn't really generating one video. It's everything around it.
+
+Getting the prompt right, making sure Flow actually produces all four clips, figuring out which downloaded file is which, cleaning them, putting them together in the right order, adding the music, and finally uploading the result adds up very quickly.
+
+This script is basically an attempt to make all of that one pipeline.
+
+It's still very much a work in progress, especially the Flow automation, but the goal is for the only real creative input to be the idea for the next "choose your reality" video.
