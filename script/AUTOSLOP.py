@@ -149,7 +149,7 @@ for f in mp4_files:
     cmd = [
         FFMPEG, "-y",
         "-i", str(f),
-        "-vf", "delogo=x={X}:y={Y}:w={W}:h={H}:show=0",
+        "-vf", f"delogo=x={X}:y={Y}:w={W}:h={H}:show=0",
         "-c:v", "libx264",
         "-crf", "18",
         "-preset", "medium",
@@ -192,10 +192,8 @@ Made with AI. New worlds every day. Subscribe to choose your reality.
 
 #shorts #chooseyourreality
 """
-TAGS = ["choose your reality", "would you rather", "aivideo", "shorts", "shortstory"]
-
-
-scriptfolder = Path(__file__).resolve().parent
+TAGS = ["choose your reality", "would you rather", "aivideo", "shorts","shortstory"]
+        
 video = scriptfolder / extracted_title / "cleaned" / "final" / f"{extracted_title}.mp4"
 
 BASE = "https://api.unipost.dev/v1"
