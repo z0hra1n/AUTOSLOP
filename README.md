@@ -16,7 +16,7 @@ Gemini writes a video prompt, Google Flow turns it into four 4-second clips with
 6. the video gets uploaded on youtube
 
 generating free quality videos was possible only through google flows free 50 credits daily and since its api is not free, i am using pyautogui clicks.
-the pyautogui clicks are harcoded and may differ from device to 
+the pyautogui clicks are harcoded and may differ from device to device.
 
 unipost allows max 100 api video uploads per month on the free plan.
 
