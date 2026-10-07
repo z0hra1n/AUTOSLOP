@@ -36,7 +36,7 @@ for model in models:
           
           break
 
-     except Exception:
+     except Exception as e:
           print(f"{model} failed: {e}")
 
 
@@ -125,8 +125,11 @@ def unzip_latest(title):
 
          with zipfile.ZipFile(zip_file, "r") as z:
              z.extractall(output_dir)
+                   
+         return output_dir
 
 
+output_dir = unzip_latest(title)
 
 time.sleep(5)
  
