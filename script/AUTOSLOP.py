@@ -37,7 +37,7 @@ for model in models:
           break
 
      except Exception:
-          pass
+          print(f"{model} failed: {e}")
 
 
 print(response.text)
