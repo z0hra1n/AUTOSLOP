@@ -25,15 +25,14 @@ models = ["gemini-3.8-flash",
           "gemini-3.5-flash",
           "gemini-3.5-flash-lite"]
 
+with open("prompt.txt", encoding="utf-8") as f:
+    prompt = f.read()
+
 for model in models:
      try:
           response = client.models.generate_content(
      model =model,
-     contents="""
-
-
-
-"""
+     contents=prompt
 )
           
           break
