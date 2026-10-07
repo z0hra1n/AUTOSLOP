@@ -111,7 +111,7 @@ time.sleep(60)
 downloads = Path.home() / "Downloads"
 scriptfolder = Path(__file__).resolve().parent
 
-def unzip_latest(title):          
+def unzip_latest(extracted_title):          
          zips = sorted(
               downloads.glob("*.zip"),
               key=lambda x: x.stat().st_mtime,
@@ -129,38 +129,45 @@ def unzip_latest(title):
          return output_dir
 
 
-output_dir = unzip_latest(title)
+output_dir = unzip_latest(extracted_title)
 
 time.sleep(5)
- 
-FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
- 
-# Watermark box (x, y, w, h) — adjust if resolution differs
-X, Y, W, H = 285, 565, 29, 29
- 
-SRC_DIR = output_dir
-OUT_DIR = SRC_DIR / "cleaned"
-OUT_DIR.mkdir(exist_ok=True)
+
+def remove_watermark(src_dir):
+    FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
+
+    # Watermark box (x, y, w, h) — adjust if resolution differs
+    X, Y, W, H = 285, 565, 29, 29
+
+    OUT_DIR = src_dir / "cleaned"
+    OUT_DIR.mkdir(exist_ok=True)
+
+    mp4_files = [f for f in src_dir.iterdir() if f.suffix.lower() == ".mp4"]
+
+    for f in mp4_files:
+        out_path = OUT_DIR / f.name
+
+        cmd = [
+            FFMPEG, "-y",
+            "-i", str(f),
+            "-vf", f"delogo=x={X}:y={Y}:w={W}:h={H}:show=0",
+            "-c:v", "libx264",
+            "-crf", "18",
+            "-preset", "medium",
+            "-an",
+            str(out_path),
+        ]
+
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            print(result.stderr)
+
+    return OUT_DIR
+
+
+OUT_DIR = remove_watermark(output_dir)
 FINAL_DIR = OUT_DIR / "final"
 FINAL_DIR.mkdir(exist_ok=True)
- 
-mp4_files = [f for f in SRC_DIR.iterdir() if f.suffix.lower() == ".mp4"]
-
-for f in mp4_files:
-    out_path = OUT_DIR / f.name
-
-    cmd = [
-        FFMPEG, "-y",
-        "-i", str(f),
-        "-vf", f"delogo=x={X}:y={Y}:w={W}:h={H}:show=0",
-        "-c:v", "libx264",
-        "-crf", "18",
-        "-preset", "medium",
-        "-an",
-        str(out_path),
-    ]
-
-    result = subprocess.run(cmd, capture_output=True, text=True)
 
 pat = re.compile(r"clip([1-4])", re.I)
 
