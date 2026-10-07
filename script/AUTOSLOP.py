@@ -2,7 +2,6 @@ from google import genai
 import os
 import re
 import sys
-import base64
 import time
 import pyautogui# type: ignore
 import pyperclip # type: ignore
@@ -128,7 +127,6 @@ output_dir.mkdir(exist_ok=True)
 with zipfile.ZipFile(zip_file, "r") as z:
     z.extractall(output_dir)
 
-latestoutput = extracted_title
 
 time.sleep(5)
  
@@ -151,7 +149,7 @@ for f in mp4_files:
     cmd = [
         FFMPEG, "-y",
         "-i", str(f),
-        "-vf", "delogo=x=285:y=565:w=29:h=29:show=0",
+        "-vf", "delogo=x=X:y=Y:w=W:h=H:show=0",
         "-c:v", "libx264",
         "-crf", "18",
         "-preset", "medium",
@@ -188,7 +186,7 @@ YT_ACCOUNT_ID = "8922450a-4035-47fa-b42e-ee70a4396267"
 
 TITLE = f"{extracted_title} (COMMENT YOUR CHOICE)"
 DESCRIPTION = """
-Which reality would you pick? Comment your number 👇
+Which reality would you pick? Comment your number!
 
 Made with AI. New worlds every day. Subscribe to choose your reality.
 
