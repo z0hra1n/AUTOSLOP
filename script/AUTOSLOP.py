@@ -133,7 +133,7 @@ time.sleep(5)
 FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
  
 # Watermark box (x, y, w, h) — adjust if resolution differs
-X, Y, W, H = 565, 1131, 65, 59
+X, Y, W, H = 285, 565, 29, 29
  
 SRC_DIR = output_dir
 OUT_DIR = SRC_DIR / "cleaned"
@@ -149,7 +149,7 @@ for f in mp4_files:
     cmd = [
         FFMPEG, "-y",
         "-i", str(f),
-        "-vf", "delogo=x=X:y=Y:w=W:h=H:show=0",
+        "-vf", "delogo=x={X}:y={Y}:w={W}:h={H}:show=0",
         "-c:v", "libx264",
         "-crf", "18",
         "-preset", "medium",
