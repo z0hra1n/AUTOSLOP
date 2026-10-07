@@ -109,23 +109,23 @@ pyautogui.click(1704,189)
 time.sleep(60)
 
 downloads = Path.home() / "Downloads"
-
-
-zips = sorted(
-    downloads.glob("*.zip"),
-    key=lambda x: x.stat().st_mtime,
-    reverse=True
-)
-
 scriptfolder = Path(__file__).resolve().parent
 
-zip_file = zips[0]
+def unzip_latest(title):          
+         zips = sorted(
+              downloads.glob("*.zip"),
+              key=lambda x: x.stat().st_mtime,
+              reverse=True
+              )
+          
+         zip_file = zips[0]
 
-output_dir = scriptfolder / extracted_title
-output_dir.mkdir(exist_ok=True)
+         output_dir = scriptfolder / extracted_title
+         output_dir.mkdir(exist_ok=True)
 
-with zipfile.ZipFile(zip_file, "r") as z:
-    z.extractall(output_dir)
+         with zipfile.ZipFile(zip_file, "r") as z:
+             z.extractall(output_dir)
+
 
 
 time.sleep(5)
